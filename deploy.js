@@ -1,4 +1,3 @@
-const startTimestamp = Date.now();
 const ethers = require('ethers');
 const config = require('./config.json');
 const fs = require('fs-extra');
