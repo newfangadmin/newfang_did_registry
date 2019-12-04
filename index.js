@@ -37,7 +37,7 @@ const attrTypes = {
 };
 
 let valid_days = 5;
-// (async () => {
+(async () => {
 //   console.log(`Add delegate, ${wallet1.address} is delegate of ${wallet.address}`);
 //   let tx = await didContract.connect(wallet).addDelegate(wallet.address, delegateTypes.Secp256k1SignatureAuthentication2018, wallet1.address, valid_days * 24 * 60 * 60);
 //   console.log("Transaction hash", tx.hash, "Waiting for transaction to be mined....");
@@ -57,7 +57,20 @@ let valid_days = 5;
 //   console.log(await didResolver.resolve(`did:ethr:${wallet.address}`));
 //
 //
-// })();
 
-console.log(ec.sign(ethers.utils.keccak256(["0x19"]), wallet.privateKey));
-;
+  let data = [
+    // "0x19",
+    // "0x00",
+    // config.EthereumDIDRegistry,
+    // parseInt(await didContract.functions.nonce(wallet.address)),
+    // wallet1.address,
+    // "addDelegate",
+    // ethers.utils.formatBytes32String("test"),
+    wallet2.address,
+    "100"
+  ];
+
+  console.log(ec.sign(ethers.utils.keccak256(data), wallet.privateKey, "hex", {canonical: true}));
+
+})();
+
