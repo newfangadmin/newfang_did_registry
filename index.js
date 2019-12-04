@@ -31,6 +31,13 @@ let valid_days = 5;
   let tx = await didContract.connect(wallet).addDelegate(wallet.address, delegateTypes.Secp256k1SignatureAuthentication2018, wallet1.address, valid_days * 24 * 60 * 60);
   console.log("Transaction hash", tx.hash, "Waiting for transaction to be mined....");
   await tx.wait(2);
+  console.log("Sets attribute"); //Sets an attribute with the given name and value, valid for validity seconds.\
+  tx = await didContract.connect(wallet).setAttribute(wallet.address, ethers.utils.formatBytes32String("hello"),
+    "0x02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71", 10);
+  console.log("Transaction hash", tx.hash, "Waiting for transaction to be mined....");
+  await tx.wait(2);
+  // console.log("transaction mined");
+
   console.log("Transaction mined, Now revoke above delegate");
   tx = await didContract.connect(wallet).revokeDelegate(wallet.address, delegateTypes.Secp256k1SignatureAuthentication2018, wallet1.address);
   console.log("Transaction hash", tx.hash, "Waiting for transaction to be mined....");
