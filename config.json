@@ -1,5 +1,5 @@
 {
   "private_key": "24C4FE6063E62710EAD956611B71825B778B041B18ED53118CE5DA5F02E494BA",
-  "network": "https://ropsten.infura.io/v3/c3300b22863e4d22afc805b901d8f7fe",
-  "EthereumDIDRegistry": "0xe021bf70cE7C47d9744b2BdbFC7bdA1b4C7cAbD9"
+  "network": "https://kovan.infura.io/v3/c3300b22863e4d22afc805b901d8f7fe",
+  "EthereumDIDRegistry": "0x58E4863446cF50C9632a4E237Df13C511B0Ce609"
 }
