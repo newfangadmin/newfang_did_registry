@@ -2,10 +2,14 @@ const config = require('./config.json');
 const ethers = require('ethers');
 const Web3 = require('web3');
 const contractJson = require('./build/EthereumDIDRegistry.json');
-const elliptic = require('elliptic');
-const ec = new elliptic.ec('secp256k1');
+const DIDResolver  = require('did-resolver');
+const EDR   = require('ethr-did-resolver');
 const currentProvider = new Web3.providers.HttpProvider(config.network);
 const provider = new ethers.providers.Web3Provider(currentProvider);
+const providerConfig = { rpcUrl: config.network, registry: config.EthereumDIDRegistry }
+const ethrDidResolver = EDR.getResolver(providerConfig);
+const didResolver = new DIDResolver.Resolver(ethrDidResolver);
+
 
 let didContract = new ethers.Contract(config.EthereumDIDRegistry, contractJson.abi, provider);
 
@@ -33,7 +37,7 @@ let valid_days = 5;
   await tx.wait(2);
   console.log("Sets attribute"); //Sets an attribute with the given name and value, valid for validity seconds.\
   tx = await didContract.connect(wallet).setAttribute(wallet.address, ethers.utils.formatBytes32String("hello"),
-    "0x02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71", 10);
+    ethers.utils.toUtf8Bytes("asdf"), 10);
   console.log("Transaction hash", tx.hash, "Waiting for transaction to be mined....");
   await tx.wait(2);
   // console.log("transaction mined");
@@ -43,7 +47,11 @@ let valid_days = 5;
   console.log("Transaction hash", tx.hash, "Waiting for transaction to be mined....");
   await tx.wait(2);
   console.log("transaction mined");
+  console.log(await didResolver.resolve(`did:ethr:${wallet.address}`));
+
 
 })();
 
 // ec.sign(ethers.utils.keccak256())
+
+
