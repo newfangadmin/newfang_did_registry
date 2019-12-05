@@ -1,12 +1,13 @@
 const assert = require('assert');
 const ethers = require('ethers');
+const config = require('../config.json');
 
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider({gasLimit: 8000000}));
 
-// const newfangJson = require('../build/Newfang');
+const newfangJson = require('../build/NewfangDIDRegistry.json');
 
-let wallet, newfang, accounts;
+let wallet, newfangDID, accounts;
 let UEBS = [
   "FKWfOvpxIEnvjnEYGhizbRyByAvACVSHpTFHaBqAWXDJrcPYWYGw",
   "pjXrVHxInrwhwqvokmNEapyaJYwGCHzPXXjOMVpnWQShkvPmXUwU",
@@ -18,5 +19,19 @@ describe('Ganache Setup', async () => {
     accounts = await provider.listAccounts();
     wallet = provider.getSigner(accounts[0]);
     assert.ok(accounts.length >= 2, 'atleast 2 accounts should be present in the array');
+  });
+});
+
+describe('Contract initialization', async () => {
+  it('Deploying the contract', async () => {
+
+    const newfangContract = new ethers.ContractFactory(
+      newfangJson.abi,
+      newfangJson.bytecode,
+      wallet
+    );
+    newfangDID = await newfangContract.deploy();
+    await newfangDID.deployed();
+    assert.ok(newfangDID.address, 'Newfang DID  Register deployed');
   });
 });

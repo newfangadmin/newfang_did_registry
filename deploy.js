@@ -34,7 +34,7 @@ async function deploy(contract_name) {
 }
 
 (async () => {
-  await deploy("EthereumDIDRegistry");
+  await deploy("NewfangDIDRegistry");
 })().catch(err => {
   console.error(err);
 });
