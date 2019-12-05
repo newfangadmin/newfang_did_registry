@@ -1,7 +1,7 @@
 # DID
 ```shell script
-git clone https://github.com/SauravKanchan/DID.git
-cd DID
+git clone https://github.com/newfangadmin/newfang_did_registry.git
+cd newfang_did_registry
 npm i
 node compile.js
 node deploy.js

@@ -1,10 +1,7 @@
 const ethers = require('ethers');
 const config = require('./config.json');
 const fs = require('fs-extra');
-const Web3 = require('web3');
-
-const currentProvider = new Web3.providers.HttpProvider(config.network);
-const provider = new ethers.providers.Web3Provider(currentProvider);
+const provider =  ethers.getDefaultProvider(config.network);
 
 const wallet = new ethers.Wallet(config.private_key, provider);
 console.log(`Loaded wallet ${wallet.address}`);
