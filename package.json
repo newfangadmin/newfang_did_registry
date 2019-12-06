@@ -18,6 +18,7 @@
   "homepage": "https://github.com/SauravKanchan/DID#readme",
   "dependencies": {
     "did-resolver": "^1.1.0",
+    "eccrypto": "^1.1.2",
     "elliptic": "^6.5.2",
     "ethereumjs-util": "^6.2.0",
     "ethers": "^4.0.40",
@@ -26,6 +27,7 @@
     "fs-extra": "^8.1.0",
     "ganache-cli": "^6.7.0",
     "mocha": "^6.2.1",
+    "secp256k1": "^3.7.1",
     "solc": "^0.5.11",
     "solc-import": "0.0.2",
     "web3": "^1.2.2"
