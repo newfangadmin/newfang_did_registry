@@ -55,5 +55,14 @@ contract NewfangDIDRegistry {
         return true;
     }
 
+    /**
+    * @dev Fetch ACK hash of user
+    * @return
+    */
+    function getKeyHash(bytes32 _file, bytes32 _access_type) public view returns(bytes32, uint256){
+        ACK memory ack = accessSpecifier[_file][_access_type][msg.sender];
+        return ack.encrypted_key, ack.validity;
+    }
+
 
 }
