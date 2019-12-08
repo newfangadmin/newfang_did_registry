@@ -93,5 +93,10 @@ describe('Contract functions', async () => {
     }
   });
 
+  it('Get Key hash', async () => {
+    let tx = await newfangDID.connect(provider.getSigner(accounts[1])).functions.getKeyHash(IDs[0], AccessTypes["read"]);
+    let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
+    assert.ok(tx[0] === ACK.encrypted_key && parseInt(tx[1]) === parseInt(ACK.validity), "Wrong data");
+  });
 
 });

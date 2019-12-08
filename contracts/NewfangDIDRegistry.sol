@@ -50,18 +50,18 @@ contract NewfangDIDRegistry {
     * @return bool
     */
     function share(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) public onlyFileOwner(_file) returns (bool){
-        require(_validity !=0 , "Validity must be non zero");
+        require(_validity != 0, "Validity must be non zero");
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
         return true;
     }
 
     /**
     * @dev Fetch ACK hash of user
-    * @return
+    * @return encrypted hash and validity
     */
-    function getKeyHash(bytes32 _file, bytes32 _access_type) public view returns(bytes32, uint256){
+    function getKeyHash(bytes32 _file, bytes32 _access_type) public view returns (bytes32, uint256){
         ACK memory ack = accessSpecifier[_file][_access_type][msg.sender];
-        return ack.encrypted_key, ack.validity;
+        return (ack.encrypted_key, ack.validity);
     }
 
 
