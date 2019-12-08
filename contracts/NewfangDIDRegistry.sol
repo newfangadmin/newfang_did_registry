@@ -21,8 +21,8 @@ contract NewfangDIDRegistry {
         owner = msg.sender;
     }
 
-    modifier onlyFileOwner(bytes32 _file) {
-        require(msg.sender == owners[_file]);
+    modifier onlyFileOwner(bytes32 _file, address _identity) {
+        require(_identity == owners[_file]);
         _;
     }
 
@@ -33,6 +33,7 @@ contract NewfangDIDRegistry {
     function createDID(bytes32 _id, address _identity) internal returns (bool){
         require(owners[_id] == address(0), "Owner already exist for this file");
         owners[_id] = _identity;
+        nonce[_identity]++;
         return true;
     }
 
@@ -49,11 +50,19 @@ contract NewfangDIDRegistry {
      contract along with its validity
     * @return bool
     */
-    function share(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) public onlyFileOwner(_file) returns (bool){
+    function share(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
         require(_validity != 0, "Validity must be non zero");
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
         return true;
     }
+
+
+    function share(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) public returns (bool){
+        return share(msg.sender, _file, _user, _access_type, _access_key, _validity);
+    }
+
+
+
 
     /**
     * @dev Fetch ACK hash of user
@@ -63,6 +72,36 @@ contract NewfangDIDRegistry {
         ACK memory ack = accessSpecifier[_file][_access_type][msg.sender];
         return (ack.encrypted_key, ack.validity);
     }
+
+
+    /**
+    * @dev Update ACK hash or its validity
+    * @return bool
+    */
+    function updateACK(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
+        accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
+        return true;
+    }
+
+    function updateACK(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) public returns (bool){
+        return updateACK(msg.sender, _file, _user, _access_type, _access_key, _validity);
+    }
+
+
+    /**
+    * @dev Change file Owner
+    * @return bool
+    */
+    function changeFileOwner(address _identity, bytes32 _file, address _new_owner) internal onlyFileOwner(_file, _identity) returns (bool){
+        require(_new_owner != address(0), "Invalid address");
+        owners[_file] = _new_owner;
+        return true;
+    }
+
+    function changeFileOwner(bytes32 _file, address _new_owner) public returns (bool){
+        return changeFileOwner(msg.sender, _file, _new_owner);
+    }
+
 
 
 }

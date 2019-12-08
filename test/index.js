@@ -99,4 +99,18 @@ describe('Contract functions', async () => {
     assert.ok(tx[0] === ACK.encrypted_key && parseInt(tx[1]) === parseInt(ACK.validity), "Wrong data");
   });
 
+  it('Update file access', async () => {
+    let tx = await newfangDID.functions.share(IDs[0], accounts[1], AccessTypes["read"],
+      ethers.utils.hashMessage("asdfasdf"), 120);
+    await tx.wait();
+    let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
+    assert.ok(ACK.encrypted_key === ethers.utils.hashMessage("asdfasdf"),
+      "encrypted key's hash not updated");
+  });
+
+  it('Change File Owner', async () => {
+    let tx = await newfangDID.functions.share(IDs[0], accounts[1], AccessTypes["read"],
+      ethers.utils.hashMessage("asdfasdf"), 120);
+    await tx.wait();
+  });
 });
