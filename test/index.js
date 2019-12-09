@@ -123,21 +123,8 @@ describe('Contract functions', async () => {
 
 describe('Signed Functions', async () => {
   it('check signature', async () => {
-    let data = [
-      "changeFileOwner","asdf"
-    ];
-    const hash = Buffer.from(sha3.buffer(Buffer.from(data, "hex")));
-    const signature = ethutil.ecsign(hash, Buffer.from(
-      wallet1.privateKey.substr(2,wallet1.privateKey.length),
-      "hex"
-    ));
-
-    let r = "0x" + signature.r.toString("hex")
-    let s =  "0x" + signature.s.toString("hex")
-    let v = signature.v;
-    // let tx = await newfangDID.functions.checkSignature(wallet1.address, v,r,s,hash);
-    // await tx.wait();
-    let tx = await newfangDID.functions.changeFileOwnerSigned(wallet1.address,hash);
+    let data = "changeFileOwnerasdf"
+    let tx = await newfangDID.functions.checkSignature(wallet1.address,hash);
     await tx.wait();
     console.log(await newfangDID.functions.log(),sha3("changeFileOwnerasdf"));
   });
