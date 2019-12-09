@@ -1,13 +1,18 @@
 const assert = require('assert');
 const ethers = require('ethers');
 const config = require('../config.json');
+const EC = require('elliptic').ec;
+const ec = new EC('secp256k1');
+const ethutil = require("ethereumjs-util");
+
+const sha3 = require("js-sha3").keccak_256;
 
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider({gasLimit: 8000000}));
 
 const newfangJson = require('../build/NewfangDIDRegistry.json');
 
-let wallet, newfangDID, accounts;
+let wallet, newfangDID, accounts, wallet1 = new ethers.Wallet(config.private_key);
 let IDs = [
   "0x4de0e96b0a8886e42a2c35b57df8a9d58a93b5bff655bc37a30e2ab8e29dc066",
   "0x3d725c5ee53025f027da36bea8d3af3b6a3e9d2d1542d47c162631de48e66c1c",
@@ -113,4 +118,26 @@ describe('Contract functions', async () => {
       ethers.utils.hashMessage("asdfasdf"), 120);
     await tx.wait();
   });
+
+  it('check signature', async () => {
+    let data = [
+      "0x19",
+      "0x00",
+      "addDelegate",
+    ];
+    const hash = Buffer.from(sha3.buffer(Buffer.from(data, "hex")));
+    const signature = ethutil.ecsign(hash, Buffer.from(
+      wallet1.privateKey.substr(2,wallet1.privateKey.length),
+      "hex"
+    ));
+
+    let r = "0x" + signature.r.toString("hex")
+    let s =  "0x" + signature.s.toString("hex")
+    let v = signature.v;
+    let tx = await newfangDID.functions.checkSignature(wallet1.address, v,r,s,hash);
+    await tx.wait();
+    // console.log(wallet1.address, tx.data);
+
+  });
+
 });

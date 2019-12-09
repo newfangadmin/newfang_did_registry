@@ -26,6 +26,14 @@ contract NewfangDIDRegistry {
         _;
     }
 
+
+    function checkSignature(address identity, uint8 sigV, bytes32 sigR, bytes32 sigS, bytes32 hash) public returns(address) {
+        address signer = ecrecover(hash, sigV, sigR, sigS);
+        require(signer == identity);
+        nonce[signer]++;
+        return signer;
+    }
+
     /**
     * @dev This function will be used by createDID pubic function and createDIDSigned
     * @return bool
@@ -101,6 +109,7 @@ contract NewfangDIDRegistry {
     function changeFileOwner(bytes32 _file, address _new_owner) public returns (bool){
         return changeFileOwner(msg.sender, _file, _new_owner);
     }
+
 
 
 
