@@ -136,8 +136,7 @@ describe('Contract functions', async () => {
     let v = signature.v;
     let tx = await newfangDID.functions.checkSignature(wallet1.address, v,r,s,hash);
     await tx.wait();
-    // console.log(wallet1.address, tx.data);
-
+    console.log(tx.parse());
   });
 
 });
