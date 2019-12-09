@@ -119,11 +119,12 @@ describe('Contract functions', async () => {
     await tx.wait();
   });
 
+});
+
+describe('Signed Functions', async () => {
   it('check signature', async () => {
     let data = [
-      "0x19",
-      "0x00",
-      "addDelegate",
+      "changeFileOwner","asdf"
     ];
     const hash = Buffer.from(sha3.buffer(Buffer.from(data, "hex")));
     const signature = ethutil.ecsign(hash, Buffer.from(
@@ -134,9 +135,17 @@ describe('Contract functions', async () => {
     let r = "0x" + signature.r.toString("hex")
     let s =  "0x" + signature.s.toString("hex")
     let v = signature.v;
-    let tx = await newfangDID.functions.checkSignature(wallet1.address, v,r,s,hash);
+    // let tx = await newfangDID.functions.checkSignature(wallet1.address, v,r,s,hash);
+    // await tx.wait();
+    let tx = await newfangDID.functions.changeFileOwnerSigned(wallet1.address,hash);
     await tx.wait();
-    console.log(tx.parse());
+    console.log(await newfangDID.functions.log(),sha3("changeFileOwnerasdf"));
   });
+
+  // it('Change File Owner', async () => {
+  //   let tx = await newfangDID.functions.changeFile(IDs[0], accounts[1], AccessTypes["read"],
+  //     ethers.utils.hashMessage("asdfasdf"), 120);
+  //   await tx.wait();
+  // });
 
 });

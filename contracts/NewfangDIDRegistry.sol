@@ -4,6 +4,7 @@ import './SafeMath.sol';
 
 contract NewfangDIDRegistry {
     using SafeMath for uint;
+    bytes32 public log;
 
     // keccak256(file index) => bytes32 newfang-specific-idstring
     mapping(bytes32 => address) public owners; // file owners
@@ -61,6 +62,7 @@ contract NewfangDIDRegistry {
     function share(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
         require(_validity != 0, "Validity must be non zero");
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
+        nonce[_identity]++;
         return true;
     }
 
@@ -88,6 +90,7 @@ contract NewfangDIDRegistry {
     */
     function updateACK(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
+        nonce[_identity]++;
         return true;
     }
 
@@ -103,6 +106,7 @@ contract NewfangDIDRegistry {
     function changeFileOwner(address _identity, bytes32 _file, address _new_owner) internal onlyFileOwner(_file, _identity) returns (bool){
         require(_new_owner != address(0), "Invalid address");
         owners[_file] = _new_owner;
+        nonce[_identity]++;
         return true;
     }
 
@@ -111,6 +115,11 @@ contract NewfangDIDRegistry {
     }
 
 
-
+    function changeFileOwnerSigned(address _identity, bytes32 _hash) public returns(bool){
+        bytes32 hash = keccak256("changeFileOwnerasdf");
+        log = hash;
+//        require(_hash==hash, "Hash not matched");
+        return true;
+    }
 
 }
