@@ -28,11 +28,22 @@ contract NewfangDIDRegistry {
     }
 
 
-    function checkSignature(address identity, uint8 sigV, bytes32 sigR, bytes32 sigS, bytes32 hash) public returns(address) {
-        address signer = ecrecover(hash, sigV, sigR, sigS);
-        require(signer == identity);
+    function getSigner(bytes32 payloadHash, address signer, uint8 v, bytes32 r, bytes32 s) public returns (address){
+        bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", payloadHash));
+        address actualSigner = ecrecover(messageHash, v, r, s);
+        require(signer == actualSigner);
         nonce[signer]++;
-        return signer;
+        return actualSigner;
+    }
+
+    function registerOnBehalfOf(string memory hash, string memory description, uint256 _num, address signer, uint8 v, bytes32 r, bytes32 s) public {
+        bytes32 payloadHash = keccak256(abi.encode(hash, description, _num));
+        address actualSigner = getSigner(payloadHash,signer,v,r,s);
+        _register(hash, description, actualSigner);
+    }
+
+    function _register(string memory hash, string memory description, address signer) public {
+        //        emit Registerd(hash, description, signer);
     }
 
     /**
@@ -115,10 +126,10 @@ contract NewfangDIDRegistry {
     }
 
 
-    function changeFileOwnerSigned(address _identity, bytes32 _hash) public returns(bool){
+    function changeFileOwnerSigned(address _identity, bytes32 _hash) public returns (bool){
         bytes32 hash = keccak256("changeFileOwnerasdf");
         log = hash;
-//        require(_hash==hash, "Hash not matched");
+        //        require(_hash==hash, "Hash not matched");
         return true;
     }
 
