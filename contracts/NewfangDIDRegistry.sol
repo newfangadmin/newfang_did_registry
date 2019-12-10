@@ -32,7 +32,6 @@ contract NewfangDIDRegistry {
         bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", payloadHash));
         address actualSigner = ecrecover(messageHash, v, r, s);
         require(signer == actualSigner);
-        nonce[signer]++;
         return actualSigner;
     }
 
@@ -80,6 +79,7 @@ contract NewfangDIDRegistry {
 
     function getKeyHash(address _identity, bytes32 _file, bytes32 _access_type) internal returns (bytes32, uint256){
         ACK memory ack = accessSpecifier[_file][_access_type][_identity];
+        nonce[_identity]++;
         emit KeyHash(ack.encrypted_key, ack.validity);
         return (ack.encrypted_key, ack.validity);
     }
@@ -94,7 +94,7 @@ contract NewfangDIDRegistry {
     }
 
     function getKeyHashSigned(bytes32 _file, bytes32 _access_type, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bytes32, uint256) {
-        bytes32 payloadHash = keccak256(abi.encode(_file, _access_type));
+        bytes32 payloadHash = keccak256(abi.encode(_file, _access_type, nonce[signer]));
         address actualSigner = getSigner(payloadHash, signer, v, r, s);
         return getKeyHash(actualSigner, _file, _access_type);
     }
