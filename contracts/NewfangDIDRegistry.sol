@@ -36,15 +36,6 @@ contract NewfangDIDRegistry {
         return actualSigner;
     }
 
-    function registerOnBehalfOf(string memory hash, string memory description, uint256 _num, address signer, uint8 v, bytes32 r, bytes32 s) public {
-        bytes32 payloadHash = keccak256(abi.encode(hash, description, _num));
-        address actualSigner = getSigner(payloadHash,signer,v,r,s);
-        _register(hash, description, actualSigner);
-    }
-
-    function _register(string memory hash, string memory description, address signer) public {
-        //        emit Registerd(hash, description, signer);
-    }
 
     /**
     * @dev This function will be used by createDID pubic function and createDIDSigned
@@ -82,16 +73,30 @@ contract NewfangDIDRegistry {
         return share(msg.sender, _file, _user, _access_type, _access_key, _validity);
     }
 
+    event KeyHash(
+        bytes32 key,
+        uint256 validity
+    );
 
+    function getKeyHash(address _identity, bytes32 _file, bytes32 _access_type) internal returns (bytes32, uint256){
+        ACK memory ack = accessSpecifier[_file][_access_type][_identity];
+        emit KeyHash(ack.encrypted_key, ack.validity);
+        return (ack.encrypted_key, ack.validity);
+    }
 
 
     /**
     * @dev Fetch ACK hash of user
     * @return encrypted hash and validity
     */
-    function getKeyHash(bytes32 _file, bytes32 _access_type) public view returns (bytes32, uint256){
-        ACK memory ack = accessSpecifier[_file][_access_type][msg.sender];
-        return (ack.encrypted_key, ack.validity);
+    function getKeyHash(bytes32 _file, bytes32 _access_type) public returns (bytes32, uint256){
+        return getKeyHash(msg.sender, _file, _access_type);
+    }
+
+    function getKeyHashSigned(bytes32 _file, bytes32 _access_type, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bytes32, uint256) {
+        bytes32 payloadHash = keccak256(abi.encode(_file, _access_type));
+        address actualSigner = getSigner(payloadHash, signer, v, r, s);
+        return getKeyHash(actualSigner, _file, _access_type);
     }
 
 
@@ -123,14 +128,6 @@ contract NewfangDIDRegistry {
 
     function changeFileOwner(bytes32 _file, address _new_owner) public returns (bool){
         return changeFileOwner(msg.sender, _file, _new_owner);
-    }
-
-
-    function changeFileOwnerSigned(address _identity, bytes32 _hash) public returns (bool){
-        bytes32 hash = keccak256("changeFileOwnerasdf");
-        log = hash;
-        //        require(_hash==hash, "Hash not matched");
-        return true;
     }
 
 }

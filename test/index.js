@@ -100,8 +100,9 @@ describe('Contract functions', async () => {
 
   it('Get Key hash', async () => {
     let tx = await newfangDID.connect(provider.getSigner(accounts[1])).functions.getKeyHash(IDs[0], AccessTypes["read"]);
-    let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
-    assert.ok(tx[0] === ACK.encrypted_key && parseInt(tx[1]) === parseInt(ACK.validity), "Wrong data");
+    let ACK = await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]);
+    let data = await tx.wait();
+    assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
   });
 
   it('Update file access', async () => {
@@ -122,37 +123,16 @@ describe('Contract functions', async () => {
 });
 
 describe('Signed Functions', async () => {
-  it('check signature', async () => {
+  it('Get Key hash', async () => {
 
-    let someHash = "asdf";
-    let someDescr = "Hello World!";
-    let randomInt = 12;
-
-    let payload = ethers.utils.defaultAbiCoder.encode([ "string", "string","uint256" ], [ someHash, someDescr, randomInt ]);
-    console.log("Payload:", payload);
-
+    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "bytes32" ], [ IDs[0], AccessTypes.read]);
     let payloadHash = ethers.utils.keccak256(payload);
-    console.log("PayloadHash:", payloadHash);
-
-    // See the note in the Solidity; basically this would save 6 gas and
-    // can potentially add security vulnerabilities in the future
-    // let payloadHash = ethers.utils.solidityKeccak256([ "bytes32", "string" ], [ someHash, someDescr ]);
-
-    // This adds the message prefix
-    let signature = await wallet.signMessage(ethers.utils.arrayify(payloadHash));
+    let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
     let sig = ethers.utils.splitSignature(signature);
-    console.log("Signature:", sig);
-
-    console.log("Recovered:", ethers.utils.verifyMessage(ethers.utils.arrayify(payloadHash), sig));
-    console.log("wallet address",wallet.getAddress());
-    let tx = await newfangDID.registerOnBehalfOf(someHash, someDescr,randomInt, wallet.getAddress(), sig.v, sig.r, sig.s);
-    console.log("Transaction:", tx.hash);
-
-    let receipt = await tx.wait();
-    console.log("Receipt Status:", receipt.status);
-
-
-    console.log("hogaya");
+    let tx = await newfangDID.functions.getKeyHashSigned(IDs[0], AccessTypes.read, accounts[1], sig.v, sig.r, sig.s);
+    let data = await tx.wait();
+    let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
+    assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
 
   });
 
