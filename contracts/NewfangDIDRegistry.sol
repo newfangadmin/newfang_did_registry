@@ -28,7 +28,7 @@ contract NewfangDIDRegistry {
     }
 
 
-    function getSigner(bytes32 payloadHash, address signer, uint8 v, bytes32 r, bytes32 s) public returns (address){
+    function getSigner(bytes32 payloadHash, address signer, uint8 v, bytes32 r, bytes32 s) public pure returns (address){
         bytes32 messageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", payloadHash));
         address actualSigner = ecrecover(messageHash, v, r, s);
         require(signer == actualSigner);

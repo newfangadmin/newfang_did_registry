@@ -125,7 +125,7 @@ describe('Contract functions', async () => {
 describe('Signed Functions', async () => {
   it('Get Key hash', async () => {
 
-    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "bytes32" ], [ IDs[0], AccessTypes.read]);
+    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "bytes32", "uint256" ], [ IDs[0], AccessTypes.read, await newfangDID.functions.nonce(accounts[1])]);
     let payloadHash = ethers.utils.keccak256(payload);
     let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
     let sig = ethers.utils.splitSignature(signature);
