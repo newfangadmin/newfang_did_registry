@@ -6,15 +6,15 @@ contract NewfangDIDRegistry {
     using SafeMath for uint;
     bytes32 public log;
 
-    // keccak256(file index) => bytes32 newfang-specific-idstring
+    // keccak256(storage index) => bytes32 newfang-specific-idstring
     mapping(bytes32 => address) public owners; // file owners
     mapping(bytes32 => mapping(bytes32 => mapping(address => ACK))) public accessSpecifier;
     mapping(address => uint) public changed;
     mapping(address => uint) public nonce;
     address public owner;
 
-    struct ACK {
-        bytes32 encrypted_key;
+    struct ACK { // Access Control Key
+        bytes32 encrypted_key; // hash of encrypted key
         uint256 validity;
     }
 
@@ -130,4 +130,9 @@ contract NewfangDIDRegistry {
         return changeFileOwner(msg.sender, _file, _new_owner);
     }
 
+    function changeOwnerSigned (bytes32 _file, address _new_owner, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
+        bytes32 payloadHash = keccak256(abi.encode(_file, _new_owner, nonce[signer]));
+        address actualSigner = getSigner(payloadHash, signer, v, r, s);
+        return changeFileOwner(actualSigner, _file, _new_owner);
+    }
 }

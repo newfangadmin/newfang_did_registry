@@ -1,6 +1,7 @@
 {
   "private_key": "24C4FE6063E62710EAD956611B71825B778B041B18ED53118CE5DA5F02E494BA",
   "network": "ropsten",
+  "matic": "https://testnet2.matic.network",
   "EthereumDIDRegistry": "0xb9b7BEAA9276F8C79996a4B70C3BB4E01C886e6f",
-  "NewfangDIDRegistry": "0x99c691E9592255673AB5CB3a2497B25ef77206d3"
+  "NewfangDIDRegistry": "0x0D6ABA8102dBE478817275B663B87d624224EF20"
 }

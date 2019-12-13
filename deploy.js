@@ -1,7 +1,9 @@
 const ethers = require('ethers');
 const config = require('./config.json');
 const fs = require('fs-extra');
-const provider =  ethers.getDefaultProvider(config.network);
+const Web3 = require('web3');
+const currentProvider = new Web3.providers.HttpProvider(config.matic);
+const provider = new ethers.providers.Web3Provider(currentProvider);
 
 const wallet = new ethers.Wallet(config.private_key, provider);
 console.log(`Loaded wallet ${wallet.address}`);
@@ -9,7 +11,7 @@ console.log(`Loaded wallet ${wallet.address}`);
 async function deploy(contract_name) {
   let compiled = require(`./build/${contract_name}.json`);
 
-  console.log(`\nDeploying ${contract_name} in ${config["network"]}...`);
+  console.log(`\nDeploying ${contract_name} in ${config["matic"]}...`);
   let contract = new ethers.ContractFactory(
     compiled.abi,
     compiled.bytecode,

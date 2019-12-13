@@ -1,11 +1,6 @@
 const assert = require('assert');
 const ethers = require('ethers');
 const config = require('../config.json');
-const EC = require('elliptic').ec;
-const ec = new EC('secp256k1');
-const ethutil = require("ethereumjs-util");
-
-const sha3 = require("js-sha3").keccak_256;
 
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider({gasLimit: 8000000}));
@@ -123,8 +118,7 @@ describe('Contract functions', async () => {
 });
 
 describe('Signed Functions', async () => {
-  it('Get Key hash', async () => {
-
+  it('Get Key hash Signed', async () => {
     let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "bytes32", "uint256" ], [ IDs[0], AccessTypes.read, await newfangDID.functions.nonce(accounts[1])]);
     let payloadHash = ethers.utils.keccak256(payload);
     let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
@@ -133,7 +127,17 @@ describe('Signed Functions', async () => {
     let data = await tx.wait();
     let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
     assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
-
   });
+
+  // it('Change Owner Signed', async () => {
+  //   let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "address", "uint256"], [ IDs[0], accounts[2], await newfangDID.functions.nonce(accounts[1])]);
+  //   let payloadHash = ethers.utils.keccak256(payload);
+  //   let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
+  //   let sig = ethers.utils.splitSignature(signature);
+  //   // let tx = await newfangDID.functions.changeOwnerSigned(IDs[0], accounts[2], accounts[1], sig.v, sig.r, sig.s);
+  //   let data = await tx.wait();
+  //   // let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
+  //   // assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
+  // });
 
 });
