@@ -110,9 +110,9 @@ describe('Contract functions', async () => {
   });
 
   it('Change File Owner', async () => {
-    let tx = await newfangDID.functions.share(IDs[0], accounts[1], AccessTypes["read"],
-      ethers.utils.hashMessage("asdfasdf"), 120);
+    let tx = await newfangDID.functions.changeFileOwner(IDs[0], accounts[1]);
     await tx.wait();
+    assert.ok(await newfangDID.owners(IDs[0]) === accounts[1], "owner do not match");
   });
 
 });
@@ -129,15 +129,14 @@ describe('Signed Functions', async () => {
     assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
   });
 
-  // it('Change Owner Signed', async () => {
-  //   let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "address", "uint256"], [ IDs[0], accounts[2], await newfangDID.functions.nonce(accounts[1])]);
-  //   let payloadHash = ethers.utils.keccak256(payload);
-  //   let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
-  //   let sig = ethers.utils.splitSignature(signature);
-  //   // let tx = await newfangDID.functions.changeOwnerSigned(IDs[0], accounts[2], accounts[1], sig.v, sig.r, sig.s);
-  //   let data = await tx.wait();
-  //   // let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
-  //   // assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
-  // });
+  it('Change Owner Signed', async () => {
+    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "address", "uint256"], [ IDs[0], accounts[2], await newfangDID.functions.nonce(accounts[1])]);
+    let payloadHash = ethers.utils.keccak256(payload);
+    let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
+    let sig = ethers.utils.splitSignature(signature);
+    let tx = await newfangDID.functions.changeOwnerSigned(IDs[0], accounts[2], accounts[1], sig.v, sig.r, sig.s);
+    await tx.wait();
+    assert.ok(await newfangDID.owners(IDs[0]) === accounts[2], "owner do not match");
+  });
 
 });
