@@ -97,7 +97,7 @@ describe('Contract functions', async () => {
     let tx = await newfangDID.connect(provider.getSigner(accounts[1])).functions.getKeyHash(IDs[0], AccessTypes["read"]);
     let ACK = await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]);
     let data = await tx.wait();
-    assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
+    assert.ok(data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data");
   });
 
   it('Update file access', async () => {
@@ -119,18 +119,18 @@ describe('Contract functions', async () => {
 
 describe('Signed Functions', async () => {
   it('Get Key hash Signed', async () => {
-    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "bytes32", "uint256" ], [ IDs[0], AccessTypes.read, await newfangDID.functions.nonce(accounts[1])]);
+    let payload = ethers.utils.defaultAbiCoder.encode(["bytes32", "bytes32", "uint256"], [IDs[0], AccessTypes.read, await newfangDID.functions.nonce(accounts[1])]);
     let payloadHash = ethers.utils.keccak256(payload);
     let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
     let sig = ethers.utils.splitSignature(signature);
     let tx = await newfangDID.functions.getKeyHashSigned(IDs[0], AccessTypes.read, accounts[1], sig.v, sig.r, sig.s);
     let data = await tx.wait();
     let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
-    assert.ok( data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data" );
+    assert.ok(data.events[0].args[0] === ACK.encrypted_key && parseInt(data.events[0].args[1]) === parseInt(ACK.validity), "Wrong data");
   });
 
   it('Change Owner Signed', async () => {
-    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "address", "uint256"], [ IDs[0], accounts[2], await newfangDID.functions.nonce(accounts[1])]);
+    let payload = ethers.utils.defaultAbiCoder.encode(["bytes32", "address", "uint256"], [IDs[0], accounts[2], await newfangDID.functions.nonce(accounts[1])]);
     let payloadHash = ethers.utils.keccak256(payload);
     let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
     let sig = ethers.utils.splitSignature(signature);
@@ -140,7 +140,7 @@ describe('Signed Functions', async () => {
   });
 
   it('Create DID Signed', async () => {
-    let payload = ethers.utils.defaultAbiCoder.encode([ "bytes32", "uint256"], [ IDs[2], await newfangDID.functions.nonce(accounts[1])]);
+    let payload = ethers.utils.defaultAbiCoder.encode(["bytes32", "uint256"], [IDs[2], await newfangDID.functions.nonce(accounts[1])]);
     let payloadHash = ethers.utils.keccak256(payload);
     let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
     let sig = ethers.utils.splitSignature(signature);
@@ -149,6 +149,18 @@ describe('Signed Functions', async () => {
     assert.ok(await newfangDID.owners(IDs[2]) === accounts[1], "owner do not match");
   });
 
+  it('Share DID Signed', async () => {
+    let payload = ethers.utils.defaultAbiCoder.encode(["bytes32", "address", "bytes32", "bytes32", "uint256", "uint256"], [IDs[2], accounts[1], AccessTypes["read"],
+      ethers.utils.hashMessage("asdf"), 120, await newfangDID.functions.nonce(accounts[1])]);
+    let payloadHash = ethers.utils.keccak256(payload);
+    let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
+    let sig = ethers.utils.splitSignature(signature);
+    let tx = await newfangDID.functions.shareSigned(IDs[2], accounts[1], AccessTypes["read"],
+      ethers.utils.hashMessage("asdf"), 120, accounts[1], sig.v, sig.r, sig.s);
+    await tx.wait();
+    let ACK = (await newfangDID.functions.accessSpecifier(IDs[2], AccessTypes["read"], accounts[1]));
+    assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
+  });
 
 
 });
