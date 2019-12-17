@@ -129,6 +129,13 @@ contract NewfangDIDRegistry {
         return updateACK(msg.sender, _file, _user, _access_type, _access_key, _validity);
     }
 
+    function updateACKSigned(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
+        bytes32 payloadHash = keccak256(abi.encode(_file, _user, _access_type, _access_key, _validity, nonce[signer]));
+        address actualSigner = getSigner(payloadHash, signer, v, r, s);
+        return updateACK(actualSigner, _file, _user, _access_type, _access_key, _validity);
+    }
+
+
 
     /**
     * @dev Change file Owner

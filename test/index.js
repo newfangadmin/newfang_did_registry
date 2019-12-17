@@ -162,5 +162,17 @@ describe('Signed Functions', async () => {
     assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
   });
 
+  it('Update ACK Signed', async () => {
+    let payload = ethers.utils.defaultAbiCoder.encode(["bytes32", "address", "bytes32", "bytes32", "uint256", "uint256"], [IDs[2], accounts[1], AccessTypes["read"],
+      ethers.utils.hashMessage("asdf"), 0, await newfangDID.functions.nonce(accounts[1])]);
+    let payloadHash = ethers.utils.keccak256(payload);
+    let signature = await provider.getSigner(accounts[1]).signMessage(ethers.utils.arrayify(payloadHash));
+    let sig = ethers.utils.splitSignature(signature);
+    let tx = await newfangDID.functions.updateACKSigned(IDs[2], accounts[1], AccessTypes["read"],
+      ethers.utils.hashMessage("asdf"), 0, accounts[1], sig.v, sig.r, sig.s);
+    await tx.wait();
+    let ACK = (await newfangDID.functions.accessSpecifier(IDs[2], AccessTypes["read"], accounts[1]));
+    assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
+  });
 
 });
