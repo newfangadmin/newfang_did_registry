@@ -55,6 +55,12 @@ contract NewfangDIDRegistry {
         return createDID(_id, msg.sender);
     }
 
+    function createDIDSigned(bytes32 _id, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
+        bytes32 payloadHash = keccak256(abi.encode(_id, nonce[signer]));
+        address actualSigner = getSigner(payloadHash, signer, v, r, s);
+        return createDID(_id, actualSigner);
+    }
+
     /**
     * @dev key is encrypted with users public key and stored on a server hash of encrypted key is stored here in smart
      contract along with its validity
