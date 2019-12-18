@@ -61,13 +61,16 @@ describe('Contract initialization, DID creation', async () => {
 
 describe('Contract functions', async () => {
   it('Share a file', async () => {
-    let tx = await newfangDID.functions.share(IDs[0], accounts[1], AccessTypes["read"],
-      ethers.utils.hashMessage("asdf"), 120);
-    await tx.wait();
-    let ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[1]));
-    assert.ok(ACK.encrypted_key !== "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "encrypted key's hash not set");
-    assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
+    let tx, ACK;
+    for (let i = 1; i < 8; i++) {
+      tx = await newfangDID.functions.share(IDs[0], accounts[i], AccessTypes["read"],
+        ethers.utils.hashMessage("asdf"), 120);
+      await tx.wait();
+      ACK = (await newfangDID.functions.accessSpecifier(IDs[0], AccessTypes["read"], accounts[i]));
+      assert.ok(ACK.encrypted_key !== "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "encrypted key's hash not set");
+      assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
+    }
   });
 
   it('share file with zero validity period', async () => {
@@ -119,7 +122,6 @@ describe('Contract functions', async () => {
     let tx = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
     console.log(tx);
   });
-
 
 
 });
