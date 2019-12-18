@@ -8,12 +8,14 @@ contract NewfangDIDRegistry {
 
     // keccak256(storage index) => bytes32 newfang-specific-idstring
     mapping(bytes32 => address) public owners; // file owners
+    // file id => access type => user => access control key
     mapping(bytes32 => mapping(bytes32 => mapping(address => ACK))) public accessSpecifier;
+    mapping(bytes32 => mapping(bytes32 => address[])) public userAccess;
     mapping(address => uint) public changed;
     mapping(address => uint) public nonce;
     address public owner;
 
-    struct ACK { // Access Control Key
+    struct ACK {// Access Control Key
         bytes32 encrypted_key; // hash of encrypted key
         uint256 validity;
     }
@@ -69,10 +71,26 @@ contract NewfangDIDRegistry {
     function share(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
         require(_validity != 0, "Validity must be non zero");
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
+        userAccess[_file][_access_type].push(_user);
         nonce[_identity]++;
         return true;
     }
 
+    function getTotalUser(bytes32 _file, bytes32 _access_type) public view returns (uint256){
+        return userAccess[_file][_access_type].length;
+    }
+
+    function getAllUsers(bytes32 _file, bytes32 _access_type) public view returns (address[] memory){
+        address[] memory users = userAccess[_file][_access_type];
+        address user;
+        for(uint i = 0; i<users.length; i++){
+            user = userAccess[_file][_access_type][i];
+            if(accessSpecifier[_file][_access_type][user].validity < now){
+                delete users[i];
+            }
+        }
+        return users;
+    }
 
     function share(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) public returns (bool){
         return share(msg.sender, _file, _user, _access_type, _access_key, _validity);
@@ -84,7 +102,6 @@ contract NewfangDIDRegistry {
         address actualSigner = getSigner(payloadHash, signer, v, r, s);
         return share(actualSigner, _file, _user, _access_type, _access_key, _validity);
     }
-
 
 
     event KeyHash(
@@ -152,7 +169,7 @@ contract NewfangDIDRegistry {
         return changeFileOwner(msg.sender, _file, _new_owner);
     }
 
-    function changeOwnerSigned (bytes32 _file, address _new_owner, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
+    function changeOwnerSigned(bytes32 _file, address _new_owner, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
         bytes32 payloadHash = keccak256(abi.encode(_file, _new_owner, nonce[signer]));
         address actualSigner = getSigner(payloadHash, signer, v, r, s);
         return changeFileOwner(actualSigner, _file, _new_owner);

@@ -115,6 +115,13 @@ describe('Contract functions', async () => {
     assert.ok(await newfangDID.owners(IDs[0]) === accounts[1], "owner do not match");
   });
 
+  it('Get all users who has file access', async () => {
+    let tx = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
+    console.log(tx);
+  });
+
+
+
 });
 
 describe('Signed Functions', async () => {
@@ -174,5 +181,6 @@ describe('Signed Functions', async () => {
     let ACK = (await newfangDID.functions.accessSpecifier(IDs[2], AccessTypes["read"], accounts[1]));
     assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
   });
+
 
 });
