@@ -15,7 +15,7 @@ A DID that uses this method  **MUST**  begin with the following prefix:  `did:ne
 The method specific identifier is represented as the Hex-encoded Ethereum address on the target network.
 
 ```
-newfang-did = "did:ethr:" newfang-specific-idstring
+newfang-did = "did:newfang:" newfang-specific-idstring
 newfang-specific-idstring = [ ethereum-network ":" ] newfang-storage-index
 ethr-network = "mainnet" / "ropsten" / "rinkeby"
 newfang-storage-index = 64*HEXDIG
