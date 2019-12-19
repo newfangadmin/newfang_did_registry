@@ -123,6 +123,16 @@ describe('Contract functions', async () => {
     assert.ok(tx.length === 8, `Expected 8 but got ${tx.length}`);
   });
 
+  it('Set File attributes', async () => {
+    let n = 6;
+    let k = 3;
+    let file_size = 12;
+    let ueb = '<UEB hash>';
+    let tx = await newfangDID.connect(provider.getSigner(accounts[1])).functions.fileUpdate(IDs[0], n, k, file_size, ueb);
+    await tx.wait();
+    let file = (await newfangDID.functions.files(IDs[0]));
+    assert.ok(parseInt(file.n) === n && parseInt(file.k) === k && parseInt(file.file_size) === file_size && file.ueb === ueb, "File attributes don't match");
+  });
 
 });
 
@@ -184,5 +194,21 @@ describe('Signed Functions', async () => {
     assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
   });
 
+  it('Set File attributes Signed', async () => {
+    let n = 16;
+    let k = 13;
+    let file_size = 22;
+    let ueb = '<UEB hash>';
+
+    let payload = ethers.utils.defaultAbiCoder.encode(["bytes32", "uint256", "uint256", "uint256", "string", "uint256"], [IDs[0], n, k, file_size, ueb, await newfangDID.functions.nonce(accounts[2])]);
+    let payloadHash = ethers.utils.keccak256(payload);
+    let signature = await provider.getSigner(accounts[2]).signMessage(ethers.utils.arrayify(payloadHash));
+    let sig = ethers.utils.splitSignature(signature);
+    let tx = await newfangDID.functions.fileUpdateSigned(IDs[0], n, k, file_size, ueb, accounts[2], sig.v, sig.r, sig.s);
+    await tx.wait();
+
+    let file = (await newfangDID.functions.files(IDs[0]));
+    assert.ok(parseInt(file.n) === n && parseInt(file.k) === k && parseInt(file.file_size) === file_size && file.ueb === ueb, "File attributes don't match");
+  });
 
 });
