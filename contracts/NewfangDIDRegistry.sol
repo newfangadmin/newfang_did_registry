@@ -13,7 +13,15 @@ contract NewfangDIDRegistry {
     mapping(bytes32 => mapping(bytes32 => address[])) public userAccess;
     mapping(address => uint) public changed;
     mapping(address => uint) public nonce;
+    mapping(bytes32 => File) public files;
     address public owner;
+
+    struct File {
+        uint256 n;
+        uint256 k;
+        uint256 file_size;
+        string ueb;
+    }
 
     struct ACK {// Access Control Key
         bytes32 encrypted_key; // hash of encrypted key
@@ -63,6 +71,24 @@ contract NewfangDIDRegistry {
         return createDID(_id, actualSigner);
     }
 
+
+    function getTotalUsers(bytes32 _file, bytes32 _access_type) public view returns (uint256){
+        return userAccess[_file][_access_type].length;
+    }
+
+    function getAllUsers(bytes32 _file, bytes32 _access_type) public view returns (address[] memory){
+        address[] memory users = userAccess[_file][_access_type];
+        address user;
+        for (uint i = 0; i < users.length; i++) {
+            user = userAccess[_file][_access_type][i];
+            if (accessSpecifier[_file][_access_type][user].validity < now) {
+                delete users[i];
+            }
+        }
+        return users;
+    }
+
+
     /**
     * @dev key is encrypted with users public key and stored on a server hash of encrypted key is stored here in smart
      contract along with its validity
@@ -76,22 +102,6 @@ contract NewfangDIDRegistry {
         return true;
     }
 
-    function getTotalUser(bytes32 _file, bytes32 _access_type) public view returns (uint256){
-        return userAccess[_file][_access_type].length;
-    }
-
-    function getAllUsers(bytes32 _file, bytes32 _access_type) public view returns (address[] memory){
-        address[] memory users = userAccess[_file][_access_type];
-        address user;
-        for(uint i = 0; i<users.length; i++){
-            user = userAccess[_file][_access_type][i];
-            if(accessSpecifier[_file][_access_type][user].validity < now){
-                delete users[i];
-            }
-        }
-        return users;
-    }
-
     function share(bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) public returns (bool){
         return share(msg.sender, _file, _user, _access_type, _access_key, _validity);
     }
@@ -103,6 +113,21 @@ contract NewfangDIDRegistry {
         return share(actualSigner, _file, _user, _access_type, _access_key, _validity);
     }
 
+    function fileUpdate(address _identity, bytes32 _file, uint256 n, uint256 k, uint256 file_size, string memory ueb) internal onlyFileOwner(_file, _identity) returns (bool){
+        require(owners[_file] != address(0), "File does not has an owner");
+        files[_file] = File(n, k, file_size, ueb);
+        return true;
+    }
+
+    function fileUpdate(bytes32 _file, uint256 n, uint256 k, uint256 file_size, string memory ueb) public returns (bool){
+        return fileUpdate(msg.sender, _file, n, k, file_size, ueb);
+    }
+
+    function fileUpdateSigned(bytes32 _file, uint256 n, uint256 k, uint256 file_size, string memory ueb, address signer, uint8 v, bytes32 r, bytes32 s) public returns (bool){
+        bytes32 payloadHash = keccak256(abi.encode(_file, n, k, file_size, ueb, nonce[signer]));
+        address actualSigner = getSigner(payloadHash, signer, v, r, s);
+        return fileUpdate(actualSigner, _file, n, k, file_size, ueb);
+    }
 
     event KeyHash(
         bytes32 key,

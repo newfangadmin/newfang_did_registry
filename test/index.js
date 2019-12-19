@@ -120,7 +120,7 @@ describe('Contract functions', async () => {
 
   it('Get all users who has file access', async () => {
     let tx = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
-    console.log(tx);
+    assert.ok(tx.length === 8, `Expected 8 but got ${tx.length}`);
   });
 
 
