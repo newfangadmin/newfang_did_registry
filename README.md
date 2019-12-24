@@ -7,7 +7,7 @@ Possession of a Newfang DID guarantees open access to some or all of the non-pri
 This is a provisional version of the Newfang DID Method spec with an implementation on the [Matic Network](matic.network), a L2 scaling solution on top of [Ethereum](ethereum.org). Current versions allow owners to be Ethereum account holders and share files with other Ethereum account holders who authenticate themselves by signing transactions having them verified on our smart contract. Future versions will afford for various authentication mechanisms.
 
 # DID Method Name
-The name-string that shall identify this DID method is:  `nf`.
+The name-string that shall identify this DID method is:  `newfang`.
 
 A DID that uses this method  **MUST**  begin with the following prefix:  `did:newfang`.
 
