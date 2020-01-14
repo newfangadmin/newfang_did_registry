@@ -3,5 +3,5 @@
   "network": "ropsten",
   "matic": "https://testnet2.matic.network",
   "EthereumDIDRegistry": "0xb9b7BEAA9276F8C79996a4B70C3BB4E01C886e6f",
-  "NewfangDIDRegistry": "0xc1c5D409595f0f912fF050Ce136f6c5EB5399DEE"
+  "NewfangDIDRegistry": "0xb12cECe1A328d737a7170959756f3E491d0aF1e8"
 }

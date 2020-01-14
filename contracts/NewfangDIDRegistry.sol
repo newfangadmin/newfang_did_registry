@@ -176,6 +176,9 @@ contract NewfangDIDRegistry {
     */
     function updateACK(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
+        if(_validity == 0){
+            delete accessSpecifier[_file][_access_type][_user];
+        }
         nonce[_identity]++;
         return true;
     }
