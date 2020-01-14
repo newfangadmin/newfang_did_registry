@@ -13,6 +13,7 @@ let IDs = [
   "0x3d725c5ee53025f027da36bea8d3af3b6a3e9d2d1542d47c162631de48e66c1c",
   "0x967f2a2c7f3d22f9278175c1e6aa39cf9171db91dceacd5ee0f37c2e507b5abe"
 ];
+
 let AccessTypes = {
   read: ethers.utils.formatBytes32String("read"),
   reshare: ethers.utils.formatBytes32String("reshare"),
@@ -119,8 +120,16 @@ describe('Contract functions', async () => {
   });
 
   it('Get all users who has file access', async () => {
-    let tx = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
-    assert.ok(tx.length === 8, `Expected 8 but got ${tx.length}`);
+    let tx1 = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
+    let tx = await newfangDID.connect(provider.getSigner(accounts[1])).updateACK(IDs[0], accounts[6], AccessTypes.read,
+      ethers.utils.hashMessage("asdf"), 0);
+    await tx.wait();
+    let tx2 = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
+    tx2 = tx2.filter(function(element) {
+      return element !== '0x0000000000000000000000000000000000000000';
+    });
+    let diff = tx1.length - tx2.length;
+    assert.ok(diff === 1, `Expected 1 but got ${diff}`);
   });
 
   it('Set File attributes', async () => {
