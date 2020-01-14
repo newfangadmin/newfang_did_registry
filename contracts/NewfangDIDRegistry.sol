@@ -37,13 +37,13 @@ contract NewfangDIDRegistry {
         _;
     }
 
-    function remove(address[] memory array,uint index) internal pure returns(address[] memory) {
+    function remove(address[] memory array, uint index) internal pure returns (address[] memory) {
 
-        for (uint i = index; i<array.length-1; i++){
-            array[i] = array[i+1];
+        for (uint i = index; i < array.length - 1; i++) {
+            array[i] = array[i + 1];
         }
-        delete array[array.length-1];
-//        array.length--;
+        delete array[array.length - 1];
+        //        array.length--;
         return array;
     }
 
@@ -91,7 +91,7 @@ contract NewfangDIDRegistry {
         for (uint i = 0; i < users.length; i++) {
             user = userAccess[_file][_access_type][i];
             if (accessSpecifier[_file][_access_type][user].validity <= now) {
-                users = remove(users,i);
+                users = remove(users, i);
             }
         }
         return users;
@@ -105,6 +105,8 @@ contract NewfangDIDRegistry {
     */
     function share(address _identity, bytes32 _file, address _user, bytes32 _access_type, bytes32 _access_key, uint256 _validity) internal onlyFileOwner(_file, _identity) returns (bool){
         require(_validity != 0, "Validity must be non zero");
+        ACK memory ack = accessSpecifier[_file][_access_type][_user];
+        require(ack.validity == 0, "Already shared with user");
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
         userAccess[_file][_access_type].push(_user);
         nonce[_identity]++;
@@ -125,7 +127,7 @@ contract NewfangDIDRegistry {
     function fileUpdate(address _identity, bytes32 _file, uint256 n, uint256 k, uint256 file_size, string memory ueb) internal onlyFileOwner(_file, _identity) returns (bool){
         require(owners[_file] != address(0), "File does not has an owner");
         require(n > k, "n>k");
-        require(file_size !=0 , "Should not be 0");
+        require(file_size != 0, "Should not be 0");
         files[_file] = File(n, k, file_size, ueb);
         return true;
     }

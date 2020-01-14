@@ -63,7 +63,7 @@ describe('Contract initialization, DID creation', async () => {
 describe('Contract functions', async () => {
   it('Share a file', async () => {
     let tx, ACK;
-    for (let i = 1; i < 8; i++) {
+    for (let i = 2; i < 8; i++) {
       tx = await newfangDID.functions.share(IDs[0], accounts[i], AccessTypes["read"],
         ethers.utils.hashMessage("asdf"), 120);
       await tx.wait();
@@ -113,6 +113,16 @@ describe('Contract functions', async () => {
       "encrypted key's hash not updated");
   });
 
+  it('Share same file to same user', async () => {
+    try {
+      let tx = await newfangDID.functions.share(IDs[0], accounts[1], AccessTypes["read"],
+        ethers.utils.hashMessage("asdfasdf"), 120);
+      await tx.wait();
+    } catch (e) {
+      assert.ok(e.message.includes('revert'), e.message)
+    }
+  });
+
   it('Change File Owner', async () => {
     let tx = await newfangDID.functions.changeFileOwner(IDs[0], accounts[1]);
     await tx.wait();
@@ -125,7 +135,7 @@ describe('Contract functions', async () => {
       ethers.utils.hashMessage("asdf"), 0);
     await tx.wait();
     let tx2 = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
-    tx2 = tx2.filter(function(element) {
+    tx2 = tx2.filter(function (element) {
       return element !== '0x0000000000000000000000000000000000000000';
     });
     let diff = tx1.length - tx2.length;
