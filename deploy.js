@@ -10,7 +10,7 @@ console.log(`Loaded wallet ${wallet.address}`);
 
 async function deploy(contract_name) {
   let compiled = require(`./build/${contract_name}.json`);
-  console.log(parseInt(await provider.getGasPrice()));
+  console.log("Current Gas price:",parseInt(await provider.getGasPrice()));
 
   console.log(`\nDeploying ${contract_name} in ${config["matic"]}`);
   let contract = new ethers.ContractFactory(
