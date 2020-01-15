@@ -72,6 +72,17 @@ describe('Contract functions', async () => {
         "encrypted key's hash not set");
       assert.ok(parseInt(ACK.validity) !== 0, "Validity can not be 0")
     }
+    tx = await newfangDID.updateACK(IDs[0], accounts[6], AccessTypes.read,
+      ethers.utils.hashMessage("asdf"), 0);
+    await tx.wait();
+    tx = await newfangDID.functions.share(IDs[0], accounts[6], AccessTypes["read"],
+      ethers.utils.hashMessage("asdf"), 120);
+    await tx.wait();
+    let tx2 = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
+    let array = tx2.filter(function (e) {
+      return e===accounts[6];
+    });
+    assert.ok(array.length === 1, `Expected 1 but got ${array.length}`);
   });
 
   it('share file with zero validity period', async () => {
@@ -135,10 +146,15 @@ describe('Contract functions', async () => {
       ethers.utils.hashMessage("asdf"), 0);
     await tx.wait();
     let tx2 = await newfangDID.functions.getAllUsers(IDs[0], AccessTypes.read);
+    console.log(tx2);
+    tx1 = tx1.filter(function (element) {
+      return element !== '0x0000000000000000000000000000000000000000';
+    });
     tx2 = tx2.filter(function (element) {
       return element !== '0x0000000000000000000000000000000000000000';
     });
     let diff = tx1.length - tx2.length;
+    console.log(tx2,tx1, accounts[6]);
     assert.ok(diff === 1, `Expected 1 but got ${diff}`);
   });
 

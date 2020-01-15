@@ -91,7 +91,8 @@ contract NewfangDIDRegistry {
         for (uint i = 0; i < users.length; i++) {
             user = userAccess[_file][_access_type][i];
             if (accessSpecifier[_file][_access_type][user].validity <= now) {
-                users = remove(users, i);
+//                users = remove(users, i);
+                delete users[i];
             }
         }
         return users;
@@ -170,6 +171,14 @@ contract NewfangDIDRegistry {
     }
 
 
+    function IndexOf(address[] memory values, address value) internal pure returns(uint) {
+        uint i = 0;
+        while (values[i] != value) {
+            i++;
+        }
+        return i;
+    }
+
     /**
     * @dev Update ACK hash or its validity
     * @return bool
@@ -178,6 +187,8 @@ contract NewfangDIDRegistry {
         accessSpecifier[_file][_access_type][_user] = ACK(_access_key, now.add(_validity));
         if(_validity == 0){
             delete accessSpecifier[_file][_access_type][_user];
+            uint index = IndexOf(userAccess[_file][_access_type], _user);
+            delete userAccess[_file][_access_type][index];
         }
         nonce[_identity]++;
         return true;
